@@ -1,1 +1,46 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pong — Pixel Party</title><link rel="stylesheet" href="styles.css"></head><body class="game-page"><div class="game-shell"><nav class="game-nav"><a class="brand" href="index.html"><span class="brand-mark">✦</span> Pixel Party</a><a class="back-link" href="index.html">← all games</a></nav><header class="game-title"><p class="eyebrow">GAME 03</p><h1>Pong</h1><p>Beat the computer. First to 7 wins.</p></header><main class="game-wrap"><div class="hud"><span>You <strong id="playerScore">0</strong></span><span id="status">Ready?</span><span>CPU <strong id="cpuScore">0</strong></span></div><canvas id="pong" width="700" height="400" class="pong-game" aria-label="Pong game board"></canvas><p class="controls">Move with ↑ ↓ or W S · First to 7 wins</p><button class="game-button" id="restart">Start / restart</button></main></div><script>const c=document.getElementById('pong'),x=c.getContext('2d');let p,cpu,ball,ps,cs,run,raf;function reset(){p={y:170};cpu={y:170};ball={x:350,y:200,vx:5,vy:3};ps=0;cs=0;run=false;paint();document.getElementById('playerScore').textContent=0;document.getElementById('cpuScore').textContent=0;document.getElementById('status').textContent='Ready?'}function paint(){x.fillStyle='#20201e';x.fillRect(0,0,700,400);x.strokeStyle='#5a554e';x.setLineDash([9,12]);x.beginPath();x.moveTo(350,0);x.lineTo(350,400);x.stroke();x.setLineDash([]);x.fillStyle='#b8e4cc';x.fillRect(20,p.y,12,60);x.fillStyle='#80b7ff';x.fillRect(668,cpu.y,12,60);x.fillStyle='#ffc84a';x.beginPath();x.arc(ball.x,ball.y,9,0,7);x.fill()}function loop(){if(!run)return;if(keys.up)p.y=Math.max(0,p.y-7);if(keys.down)p.y=Math.min(340,p.y+7);cpu.y+=(ball.y-30-cpu.y)*.065;ball.x+=ball.vx;ball.y+=ball.vy;if(ball.y<9||ball.y>391)ball.vy*=-1;if(ball.x<32&&ball.y>p.y-8&&ball.y<p.y+68){ball.vx=Math.abs(ball.vx)*1.04;ball.vy+=(ball.y-(p.y+30))*.08}if(ball.x>660&&ball.y>cpu.y-8&&ball.y<cpu.y+68){ball.vx=-Math.abs(ball.vx)*1.04;ball.vy+=(ball.y-(cpu.y+30))*.08}if(ball.x<0){cs++;point()}if(ball.x>700){ps++;point()}paint();raf=requestAnimationFrame(loop)}function point(){document.getElementById('playerScore').textContent=ps;document.getElementById('cpuScore').textContent=cs;if(ps>=7||cs>=7){run=false;document.getElementById('status').textContent=ps>cs?'You win!':'CPU wins';return}ball={x:350,y:200,vx:(ps+cs)%2? -5:5,vy:3};}const keys={up:false,down:false};addEventListener('keydown',e=>{let k=e.key.toLowerCase();if(k==='arrowup'||k==='w')keys.up=true;if(k==='arrowdown'||k==='s')keys.down=true;if(k===' '&&!run)begin()});addEventListener('keyup',e=>{let k=e.key.toLowerCase();if(k==='arrowup'||k==='w')keys.up=false;if(k==='arrowdown'||k==='s')keys.down=false});function begin(){reset();run=true;document.getElementById('status').textContent='Playing';loop()}document.getElementById('restart').onclick=begin;reset()</script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pong - Pixel Party</title><link rel="stylesheet" href="styles.css">
+</head>
+<body class="game-page">
+  <div class="game-shell">
+    <nav class="game-nav"><a class="brand" href="index.html"><span class="brand-mark">✦</span> Pixel Party</a><a class="back-link" href="index.html">← all games</a></nav>
+    <header class="game-title"><p class="eyebrow">GAME 03</p><h1>Pong</h1><p>Beat the computer. First to 7 wins.</p></header>
+    <main class="game-wrap">
+      <div class="hud"><span>You <strong id="playerScore">0</strong></span><span id="status">Ready?</span><span>CPU <strong id="cpuScore">0</strong></span></div>
+      <canvas id="pong" width="700" height="400" class="pong-game" aria-label="Pong game board"></canvas>
+      <p class="controls">Move with Up/Down or W/S - First to 7 wins</p>
+      <div class="mobile-controls" aria-label="Pong controls">
+        <button type="button" data-pong="up" aria-label="Move paddle up">&#8593;</button>
+        <button type="button" data-pong="down" aria-label="Move paddle down">&#8595;</button>
+      </div>
+      <button class="game-button" id="restart">Start / restart</button>
+    </main>
+  </div>
+  <script>
+    const canvas = document.getElementById('pong');
+    const context = canvas.getContext('2d');
+    let player, cpu, ball, playerScore, cpuScore, running, frame;
+    const keys = { up: false, down: false };
+
+    function reset() {
+      cancelAnimationFrame(frame);
+      player = { y: 170 }; cpu = { y: 170 }; ball = { x: 350, y: 200, vx: 5, vy: 3 };
+      playerScore = 0; cpuScore = 0; running = false;
+      document.getElementById('playerScore').textContent = '0'; document.getElementById('cpuScore').textContent = '0'; document.getElementById('status').textContent = 'Ready?';
+      paint();
+    }
+    function paint() { context.fillStyle = '#20201e'; context.fillRect(0, 0, 700, 400); context.strokeStyle = '#5a554e'; context.setLineDash([9, 12]); context.beginPath(); context.moveTo(350, 0); context.lineTo(350, 400); context.stroke(); context.setLineDash([]); context.fillStyle = '#b8e4cc'; context.fillRect(20, player.y, 12, 60); context.fillStyle = '#80b7ff'; context.fillRect(668, cpu.y, 12, 60); context.fillStyle = '#ffc84a'; context.beginPath(); context.arc(ball.x, ball.y, 9, 0, Math.PI * 2); context.fill(); }
+    function loop() { if (!running) return; if (keys.up) player.y = Math.max(0, player.y - 7); if (keys.down) player.y = Math.min(340, player.y + 7); cpu.y += (ball.y - 30 - cpu.y) * .065; ball.x += ball.vx; ball.y += ball.vy; if (ball.y < 9 || ball.y > 391) ball.vy *= -1; if (ball.x < 32 && ball.y > player.y - 8 && ball.y < player.y + 68) { ball.vx = Math.abs(ball.vx) * 1.04; ball.vy += (ball.y - (player.y + 30)) * .08; } if (ball.x > 660 && ball.y > cpu.y - 8 && ball.y < cpu.y + 68) { ball.vx = -Math.abs(ball.vx) * 1.04; ball.vy += (ball.y - (cpu.y + 30)) * .08; } if (ball.x < 0) { cpuScore++; point(); } if (ball.x > 700) { playerScore++; point(); } paint(); frame = requestAnimationFrame(loop); }
+    function point() { document.getElementById('playerScore').textContent = playerScore; document.getElementById('cpuScore').textContent = cpuScore; if (playerScore >= 7 || cpuScore >= 7) { running = false; document.getElementById('status').textContent = playerScore > cpuScore ? 'You win!' : 'CPU wins'; return; } ball = { x: 350, y: 200, vx: (playerScore + cpuScore) % 2 ? -5 : 5, vy: 3 }; }
+    function begin() { reset(); running = true; document.getElementById('status').textContent = 'Playing'; loop(); }
+    addEventListener('keydown', event => { const key = event.key.toLowerCase(); if (key === 'arrowup' || key === 'w') keys.up = true; if (key === 'arrowdown' || key === 's') keys.down = true; if (key === ' ' && !running) begin(); });
+    addEventListener('keyup', event => { const key = event.key.toLowerCase(); if (key === 'arrowup' || key === 'w') keys.up = false; if (key === 'arrowdown' || key === 's') keys.down = false; });
+    document.querySelectorAll('[data-pong]').forEach(button => { const direction = button.dataset.pong; const press = event => { event.preventDefault(); keys[direction] = true; if (!running) begin(); }; const release = () => { keys[direction] = false; }; button.addEventListener('pointerdown', press); button.addEventListener('pointerup', release); button.addEventListener('pointercancel', release); button.addEventListener('pointerleave', release); });
+    document.getElementById('restart').addEventListener('click', begin);
+    reset();
+  </script>
+</body>
+</html>
